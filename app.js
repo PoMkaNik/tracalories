@@ -12,9 +12,9 @@ const ItemCtrl = (function () {
   // data structure
   const data = {
     items: [
-      // { id: 0, name: 'Steak Dinner', calories: 1200 },
-      // { id: 1, name: 'Cookie', calories: 400 },
-      // { id: 2, name: 'Eggs', calories: 300 },
+      { id: 0, name: 'Steak Dinner', calories: 1200 },
+      { id: 1, name: 'Cookie', calories: 400 },
+      { id: 2, name: 'Eggs', calories: 300 },
     ],
     currentItem: null,
     totalCalories: 0,
@@ -36,6 +36,13 @@ const ItemCtrl = (function () {
       data.items.push(newItem);
       return newItem;
     },
+    getTotalCalories: function () {
+      data.totalCalories = data.items.reduce(
+        (sum, item) => sum + item.calories,
+        0,
+      );
+      return data.totalCalories;
+    },
     logData: function () {
       return data;
     },
@@ -49,6 +56,7 @@ const UICtrl = (function () {
     addBtn: '.add-btn',
     itemNameInput: '#item-name',
     itemCaloriesInput: '#item-calories',
+    totalCalories: '.total-calories',
   };
 
   return {
@@ -104,6 +112,11 @@ const UICtrl = (function () {
     showList: function () {
       document.querySelector(UISelectors.itemList).style.display = 'block';
     },
+    showTotalCalories: function (totalCalories) {
+      document.querySelector(
+        UISelectors.totalCalories,
+      ).textContent = totalCalories;
+    },
     getSelectors: function () {
       return UISelectors;
     },
@@ -136,6 +149,10 @@ const App = (function (ItemCtrl, UICtrl) {
     UICtrl.addListItem(newItem);
     // show list in UI (if was hided due to no items before)
     UICtrl.showList();
+    // get the total calories
+    const totalCalories = ItemCtrl.getTotalCalories();
+    // show total calories in UI
+    UICtrl.showTotalCalories(totalCalories);
     // clear input fields
     UICtrl.clearInput();
   };
@@ -148,8 +165,9 @@ const App = (function (ItemCtrl, UICtrl) {
       items.length === 0
         ? // if nothing - hide the list from DOM
           UICtrl.hideList()
-        : // else -> show items in UI
-          UICtrl.populateItemList(items);
+        : // else -> show items and total calories in UI
+          (UICtrl.populateItemList(items),
+          UICtrl.showTotalCalories(ItemCtrl.getTotalCalories()));
       // load event listeners
       loadEventListeners();
     },
