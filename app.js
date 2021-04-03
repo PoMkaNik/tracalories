@@ -47,6 +47,12 @@ const ItemCtrl = (function () {
       updatedItem.calories = calories;
       return updatedItem;
     },
+    deleteItem: function (id) {
+      const indexOfItemToDelete = data.items.findIndex(
+        (item) => item.id === id,
+      );
+      data.items.splice(indexOfItemToDelete, 1);
+    },
     getItemById: function (id) {
       return data.items.find((item) => item.id === id);
     },
@@ -140,6 +146,11 @@ const UICtrl = (function () {
         </a>
       `;
     },
+    deleteListItem: function (item) {
+      const itemID = `#item-${item.id}`;
+      const deletedItem = document.querySelector(itemID);
+      deletedItem.remove();
+    },
     clearInput: function () {
       document.querySelector(UISelectors.itemNameInput).value = '';
       document.querySelector(UISelectors.itemCaloriesInput).value = '';
@@ -229,6 +240,22 @@ const App = (function (ItemCtrl, UICtrl) {
         e.preventDefault();
         itemUpdateSubmit();
       });
+
+    // back button event
+    document
+      .querySelector(UISelectors.backBtn)
+      .addEventListener('click', function (e) {
+        e.preventDefault();
+        UICtrl.clearEditState();
+      });
+
+    // delete button event
+    document
+      .querySelector(UISelectors.deleteBtn)
+      .addEventListener('click', function (e) {
+        e.preventDefault();
+        itemDeleteSubmit();
+      });
   };
 
   // add item submit
@@ -272,6 +299,22 @@ const App = (function (ItemCtrl, UICtrl) {
     const updatedItem = ItemCtrl.updateItem(name, calories);
     // update UI
     UICtrl.updateListItem(updatedItem);
+    // update total calories
+    UICtrl.showTotalCalories(ItemCtrl.getTotalCalories());
+    // set currentItem to null
+    ItemCtrl.setCurrentItem(null);
+    // clear Edit mode
+    UICtrl.clearEditState();
+  };
+
+  // delete item
+  const itemDeleteSubmit = function () {
+    // get current item
+    const currentItem = ItemCtrl.getCurrentItem();
+    // delete item
+    ItemCtrl.deleteItem(currentItem.id);
+    // update UI
+    UICtrl.deleteListItem(currentItem);
     // update total calories
     UICtrl.showTotalCalories(ItemCtrl.getTotalCalories());
     // set currentItem to null
